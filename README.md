@@ -1,13 +1,18 @@
 (Better documentation to come.)
 
 Build Instructions
+
 ------------------------
+
 mkdir build && cd build && cmake .. && make
 
 Usage
+
 -----
+
 Let's say you have a list of PointClouds (in the sensor frame) and the camera poses. To merge into a volume:
 
+<code>
 TSDFVolumeOctree::Ptr tsdf (new TSDFVolumeOctree);
 tsdf->setGridSize (10., 10., 10.); // 10m x 10m x 10m
 tsdf->setResolution (2048, 2048, 2048); // Smallest sell cize = 10m / 2048 = about half a centimeter
@@ -30,6 +35,7 @@ MarchingCubesTSDFOctree mc;
 mc.setInputTSDF (tsdf);
 pcl::PolygonMesh mesh;
 mc.reconstruct (mesh);
+</code>
 
 These are just the basics. You can add colors, store your own metadata in voxels (see octree.h), etc. Please ping me for bugs!
 
