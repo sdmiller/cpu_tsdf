@@ -307,7 +307,7 @@ cpu_tsdf::TSDFVolumeOctree::renderView (const Eigen::Affine3d &trans, int downsa
             if (!voxel)
               break;
             voxel->getData (new_d, new_w);
-            if (last_d > 0 && new_d > 0 || last_d < 0 && new_d < 0)
+            if ((last_d > 0 && new_d > 0) || (last_d < 0 && new_d < 0))
             {
               last_d = new_d;
               last_w = new_w;
@@ -513,6 +513,7 @@ pcl::PointCloud<pcl::Intensity>::Ptr
 cpu_tsdf::TSDFVolumeOctree::getIntensityCloud (const Eigen::Affine3d &trans) const
 {
  // TODO
+  return (pcl::PointCloud<pcl::Intensity>::Ptr ());
 }
 
 
@@ -690,6 +691,7 @@ cpu_tsdf::TSDFVolumeOctree::getHessian (const pcl::PointXYZ &pt, Eigen::Matrix3f
   hessian (1,0) = hessian (0,1);
   hessian (2,0) = hessian (0,2);
   hessian (2,1) = hessian (1,2);
+  return (true);
 }
 
 //////////////////////////////////////////////////////////////////////
