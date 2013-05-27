@@ -106,6 +106,7 @@ cpu_tsdf::OctreeNode::setData (float d, float w)
 {
   d_ = d;
   w_ = w;
+  return (true);
 }
 
 bool
@@ -118,6 +119,7 @@ cpu_tsdf::OctreeNode::addObservation (float d_new, float w_new, float max_weight
     w_ = max_weight;
   M_ += w_new * (d_new - d_) * (d_new - d_old);
   ++nsample_;
+  return (true);
 }
 
 
@@ -125,7 +127,7 @@ bool
 cpu_tsdf::OctreeNode::addObservation (float d_new, float w_new, float max_weight, 
                 uint8_t r, uint8_t g, uint8_t b)
 {
-  addObservation (d_new, w_new, max_weight);
+  return (addObservation (d_new, w_new, max_weight));
 }
 
 bool
@@ -291,7 +293,7 @@ cpu_tsdf::RGBNode::addObservation (float d_new, float w_new, float max_weight,
   r_ = static_cast<uint8_t> ( (w_*r_ + w_new*r) / wsum);
   g_ = static_cast<uint8_t> ( (w_*g_ + w_new*g) / wsum);
   b_ = static_cast<uint8_t> ( (w_*b_ + w_new*b) / wsum);
-  OctreeNode::addObservation (d_new, w_new, max_weight);
+  return (OctreeNode::addObservation (d_new, w_new, max_weight));
 }
 
 bool
@@ -347,7 +349,7 @@ cpu_tsdf::RGBNormalized::addObservation (float d_new, float w_new, float max_wei
   g_n_ = (w_*g_n_ + w_new*g_f) / wsum;
   b_n_ = (w_*b_n_ + w_new*b_f) / wsum;
   i_ = (w_*i_ + w_new*i) / wsum;
-  OctreeNode::addObservation (d_new, w_new, max_weight);
+  return (OctreeNode::addObservation (d_new, w_new, max_weight));
 }
 
 bool
@@ -422,15 +424,15 @@ cpu_tsdf::RGB2LAB (uint8_t r, uint8_t g, uint8_t b,
   Y /= 100.;
   Z /= 108.883;
   if (X > 0.008856)
-    X = std::pow (X, 1/3.);
+    X = std::pow (static_cast<double> (X), 1/3.);
   else
     X = 7.787 * X + (16 / 116.);
   if (Y > 0.008856)
-    Y = std::pow (Y, 1/3.);
+    Y = std::pow (static_cast<double> (Y), 1/3.);
   else
     Y = 7.787 * Y + (16 / 116.);
   if (Z > 0.008856)
-    Z = std::pow (Z, 1/3.);
+    Z = std::pow (static_cast<double> (Z), 1/3.);
   else
     Z = 7.787 * Z + (16 / 116.);
   L = (116 * Y) - 16;
@@ -469,15 +471,15 @@ cpu_tsdf::LAB2RGB (float L, float A, float B,
   float gf = X * -0.9689 + Y * +1.8758 + Z * +0.0415;
   float bf = X * +0.0557 + Y * -0.2040 + Z * +1.0570;
   if (rf > 0.0031308)
-    rf = 1.055 * std::pow (rf, 1. / 2.4) - 0.055;
+    rf = 1.055 * std::pow (static_cast<double> (rf), 1. / 2.4) - 0.055;
   else
     rf *= 12.92;
   if (gf > 0.0031308)
-    gf = 1.055 * std::pow (gf, 1. / 2.4) - 0.055;
+    gf = 1.055 * std::pow (static_cast<double> (gf), 1. / 2.4) - 0.055;
   else
     gf *= 12.92;
   if (bf > 0.0031308)
-    bf = 1.055 * std::pow (bf, 1. / 2.4) - 0.055;
+    bf = 1.055 * std::pow (static_cast<double> (bf), 1. / 2.4) - 0.055;
   else
     bf *= 12.92;
   r = static_cast<uint8_t> (rf * 255);
@@ -498,7 +500,7 @@ cpu_tsdf::LABNode::addObservation (float d_new, float w_new, float max_weight,
   L_ = (w_*L_ + w_new*L_new) / wsum;
   A_ = (w_*A_ + w_new*A_new) / wsum;
   B_ = (w_*B_ + w_new*B_new) / wsum;
-  OctreeNode::addObservation (d_new, w_new, max_weight);
+  return (OctreeNode::addObservation (d_new, w_new, max_weight));
 }
 
 bool
