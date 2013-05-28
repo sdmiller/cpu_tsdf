@@ -44,6 +44,8 @@ install(TARGETS cpu_tsdf DESTINATION lib${LIB_SUFFIX})
 add_executable (tsdf2mesh src/prog/tsdf2mesh.cpp)
 target_link_libraries(tsdf2mesh ${PCL_LIBRARIES} cpu_tsdf)
 install(TARGETS tsdf2mesh DESTINATION bin)
+configure_file (${PROJECT_SOURCE_DIR}/CPUTSDFConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake DESTINATION share)
 
 
 
