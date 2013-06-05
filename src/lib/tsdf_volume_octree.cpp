@@ -47,6 +47,7 @@ cpu_tsdf::TSDFVolumeOctree::TSDFVolumeOctree()
   , integrate_color_ (false)
   , color_mode_ ("RGB")
   , use_trilinear_interpolation_ (false)
+  , num_random_splits_ (1)
 {
   // Global transform
   global_transform_ = Eigen::Affine3d::Identity ();

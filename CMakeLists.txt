@@ -23,7 +23,9 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}")
 # which point to directories outside the build tree to the install RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-find_package(PCL 1.7 QUIET)
+find_package(PCL 1.7 REQUIRED QUIET)
+
+find_package(Boost COMPONENTS program_options)
 
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -47,5 +49,8 @@ install(TARGETS tsdf2mesh DESTINATION bin)
 configure_file (${PROJECT_SOURCE_DIR}/CPUTSDFConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake DESTINATION share)
 
+add_executable (integrate src/prog/integrate.cpp)
+target_link_libraries(integrate ${PCL_LIBRARIES} cpu_tsdf boost_program_options)
+install(TARGETS integrate DESTINATION bin)
 
 

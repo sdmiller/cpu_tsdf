@@ -34,11 +34,14 @@ cpu_tsdf::TSDFVolumeOctree::integrateCloud (
       // Look at surroundings
       int nstep = 0;
       Eigen::Vector3f ray = pt_surface_orig.getVector3fMap ().normalized ();
-      for (int step = -nstep; step <= nstep; step++)
+      for (int perm = 0; perm < num_random_splits_; perm++)
       {
         // Get containing voxels
         PointT pt_trans; 
-        pt_trans.getVector3fMap () = trans.cast<float> () * (pt_surface_orig.getVector3fMap ());// + max_dist_/static_cast<float> (nstep)*step*ray); 
+        float scale = (float)rand () / (float)RAND_MAX * 0.03;
+        Eigen::Vector3f noise = Eigen::Vector3f::Random ().normalized () * scale;;
+        if (perm == 0) noise *= 0;
+        pt_trans.getVector3fMap () = trans.cast<float> () * (pt_surface_orig.getVector3fMap ()+ noise);
         OctreeNode* voxel = octree_->getContainingVoxel (pt_trans.x, pt_trans.y, pt_trans.z);
         if (voxel != NULL)
         {

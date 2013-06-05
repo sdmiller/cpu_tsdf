@@ -143,6 +143,15 @@ namespace cpu_tsdf
     setIntegrateColor (bool integrate_color)
     { integrate_color_ = integrate_color; }
 
+    /** \brief Set the number of random samples per surface point
+     *  the octree should split on. If you don't know what this does, 
+     *  it's almost certainly best to leave it at 1*/
+    inline void setNumRandomSplts (int num_random_splits)
+    { num_random_splits_ = num_random_splits; }
+
+    inline int getNumRandomSplits ()
+    { return (num_random_splits_); }
+
     /** \brief Clear everything stored in this volume and init*/
     void
     reset ();
@@ -292,6 +301,8 @@ namespace cpu_tsdf
     float max_sensor_dist_;
 
     float max_cell_size_x_, max_cell_size_y_, max_cell_size_z_;
+
+    int num_random_splits_;
 
     double focal_length_x_, focal_length_y_;
     double principal_point_x_, principal_point_y_;
