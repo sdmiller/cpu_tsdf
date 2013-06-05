@@ -23,7 +23,7 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}")
 # which point to directories outside the build tree to the install RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-find_package(PCL 1.7 REQUIRED QUIET)
+find_package(PCL 1.7 QUIET REQUIRED)
 
 find_package(Boost COMPONENTS program_options)
 
