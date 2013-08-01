@@ -9,12 +9,12 @@ mkdir build && cd build && cmake .. && make
 Usage
 =====
 
-Let's say you have a list of PointClouds (in the sensor frame) and the camera poses. To merge into a volume:
+Let's say you have a list of PointClouds (in the sensor frame) and the camera poses. To merge them into a volume:
 
 ```cpp
  TSDFVolumeOctree::Ptr tsdf (new TSDFVolumeOctree);
  tsdf->setGridSize (10., 10., 10.); // 10m x 10m x 10m
- tsdf->setResolution (2048, 2048, 2048); // Smallest sell cize = 10m / 2048 = about half a centimeter
+ tsdf->setResolution (2048, 2048, 2048); // Smallest cell size = 10m / 2048 = about half a centimeter
  Eigen::Affine3d tsdf_center; // Optionally offset the center
  tsdf->setGlobalTransform (tsdf_center);
  tsdf->reset (); // Initialize it to be empty
