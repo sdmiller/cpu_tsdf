@@ -1,4 +1,7 @@
-(Better documentation to come.)
+This package provides pcl-compatible tools for building a smooth volumetric surface from registered point clouds, following a similar 
+approach to that of Curless and Levoy, as made popular by KinectFusion. This runs on a CPU, using an octree to 
+efficiently compress free space and scale to larger environments than can fit on a GPU. Also comes with 
+a Marching Cube implementation, for extracting the isosurface.
 
 Build Instructions
 ===================
