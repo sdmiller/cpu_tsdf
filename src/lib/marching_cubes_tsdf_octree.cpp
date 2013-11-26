@@ -84,13 +84,13 @@ cpu_tsdf::MarchingCubesTSDFOctree::performReconstruction (pcl::PolygonMesh &outp
     pcl::PointCloud<pcl::PointXYZRGB> cloud_colored;
     reconstructVoxel (root.get (), cloud, &cloud_colored);
     pcl::transformPointCloud (cloud_colored, cloud_colored, tsdf_volume_->getGlobalTransform ());
-    pcl::toROSMsg (cloud_colored, output.cloud);
+    pcl::toPCLPointCloud2 (cloud_colored, output.cloud);
   }
   else
   {
     reconstructVoxel (root.get (), cloud);
     pcl::transformPointCloud (cloud, cloud, tsdf_volume_->getGlobalTransform ());
-    pcl::toROSMsg (cloud, output.cloud);
+    pcl::toPCLPointCloud2 (cloud, output.cloud);
   }
 
   output.polygons.resize (cloud.size () / 3);

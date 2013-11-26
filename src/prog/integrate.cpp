@@ -39,7 +39,7 @@ meshToFaceCloud (const pcl::PolygonMesh &mesh)
 {
   pcl::PointCloud<pcl::PointNormal>::Ptr cloud (new pcl::PointCloud<pcl::PointNormal>);
   pcl::PointCloud<pcl::PointXYZ> vertices;
-  pcl::fromROSMsg (mesh.cloud, vertices);
+  pcl::fromPCLPointCloud2 (mesh.cloud, vertices);
 
   for (size_t i = 0; i < mesh.polygons.size (); ++i)
   {
@@ -70,7 +70,7 @@ void
 flattenVertices (pcl::PolygonMesh &mesh, float min_dist = 0.0001)
 {
   pcl::PointCloud<pcl::PointXYZ>::Ptr vertices (new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::fromROSMsg (mesh.cloud, *vertices);
+  pcl::fromPCLPointCloud2 (mesh.cloud, *vertices);
   pcl::search::KdTree<pcl::PointXYZ> vert_tree (true);
   vert_tree.setInputCloud (vertices);
   // Find duplicates
@@ -112,7 +112,7 @@ flattenVertices (pcl::PolygonMesh &mesh, float min_dist = 0.0001)
     }
   }
   mesh.polygons.resize (face_idx);
-  pcl::toROSMsg (vertices_new, mesh.cloud);
+  pcl::toPCLPointCloud2 (vertices_new, mesh.cloud);
 }
 
 void
@@ -149,7 +149,7 @@ cleanupMesh (pcl::PolygonMesh &mesh, float face_dist=0.02, int min_neighbors=5)
   }
   // Remove all vertices with no face
   pcl::PointCloud<pcl::PointXYZ> vertices;
-  pcl::fromROSMsg (mesh.cloud, vertices);
+  pcl::fromPCLPointCloud2 (mesh.cloud, vertices);
   std::vector<bool> has_face (vertices.size (), false);
   for (size_t i = 0; i < mesh.polygons.size (); i++)
   {
@@ -176,7 +176,7 @@ cleanupMesh (pcl::PolygonMesh &mesh, float face_dist=0.02, int min_neighbors=5)
     v.vertices[1] = get_new_idx[v.vertices[1]];
     v.vertices[2] = get_new_idx[v.vertices[2]];
   }
-  pcl::toROSMsg (vertices_new, mesh.cloud);
+  pcl::toPCLPointCloud2 (vertices_new, mesh.cloud);
 }
 
 bool
