@@ -34,6 +34,8 @@ add_definitions(${PCL_DEFINITIONS})
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+export(PACKAGE CPUTSDF)
+
 # create the CPUTSDF library
 add_library (cpu_tsdf SHARED
               src/lib/octree.cpp
@@ -76,7 +78,7 @@ FOREACH(HEADER ${HEADER_FILES})
 ENDFOREACH(HEADER)
 
 # Install CPUTSDF cmake config file for FIND_PACKAGE()
-configure_file (${PROJECT_SOURCE_DIR}/CPUTSDFConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake DESTINATION share)
+configure_file (${PROJECT_SOURCE_DIR}/CPUTSDFConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake DESTINATION share/cpu_tsdf)
 
 
