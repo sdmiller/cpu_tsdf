@@ -87,6 +87,12 @@ namespace cpu_tsdf
     virtual Eigen::Affine3d
     getGlobalTransform () const = 0;
 
+    virtual void
+    setSensorDistanceBounds (float min_sensor_dist, float max_sensor_dist) = 0;
+    
+    virtual void
+    getSensorDistanceBounds (float &min_sensor_dist, float &max_sensor_dist) const = 0;
+
     /** \brief Save in ascii format to disk */
     virtual void
     save (const std::string &filename) const = 0;

@@ -151,6 +151,20 @@ namespace cpu_tsdf
 
     inline int getNumRandomSplits ()
     { return (num_random_splits_); }
+    
+    inline void
+    setSensorDistanceBounds (float min_sensor_dist, float max_sensor_dist)
+    {
+      min_sensor_dist_ = min_sensor_dist;
+      max_sensor_dist_ = max_sensor_dist;
+    }
+    
+    inline void
+    getSensorDistanceBounds (float &min_sensor_dist, float &max_sensor_dist) const
+    {
+      min_sensor_dist = min_sensor_dist_;
+      max_sensor_dist = max_sensor_dist_;
+    }
 
     /** \brief Clear everything stored in this volume and init*/
     void

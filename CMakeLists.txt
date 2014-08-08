@@ -53,4 +53,7 @@ add_executable (integrate src/prog/integrate.cpp)
 target_link_libraries(integrate ${PCL_LIBRARIES} cpu_tsdf boost_program_options)
 install(TARGETS integrate DESTINATION bin)
 
+add_executable (get_intrinsics src/prog/get_intrinsics.cpp)
+target_link_libraries(get_intrinsics ${PCL_LIBRARIES} boost_program_options)
+install(TARGETS get_intrinsics DESTINATION bin)
 

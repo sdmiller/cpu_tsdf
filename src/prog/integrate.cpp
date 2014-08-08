@@ -33,7 +33,6 @@ float focal_length_y_ = 525.;
 float principal_point_x_ = 319.5;
 float principal_point_y_ = 239.5;
 
-
 pcl::PointCloud<pcl::PointNormal>::Ptr
 meshToFaceCloud (const pcl::PolygonMesh &mesh)
 {
@@ -187,31 +186,6 @@ reprojectPoint (const pcl::PointXYZRGBA &pt, int &u, int &v)
   return (!pcl_isnan (pt.z) && pt.z > 0 && u >= 0 && u < width_ && v >= 0 && v < height_);
 }
 
-void
-remapCloud (pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr cloud, 
-            const Eigen::Affine3d &pose, 
-            pcl::PointCloud<pcl::PointXYZRGBA> &cloud_remapped)
-{
-  // Reproject
-  cloud_remapped = pcl::PointCloud<pcl::PointXYZRGBA> (width_, height_);
-  // Initialize to nan
-#pragma omp parallel for
-  for (size_t i = 0; i < cloud_remapped.size (); i++)
-  {
-    cloud_remapped[i].z = std::numeric_limits<float>::quiet_NaN ();
-  }
-  cloud_remapped.is_dense = false;
-  for (size_t i = 0; i < cloud->size (); i++)
-  {
-    const pcl::PointXYZRGBA &pt = cloud->at (i); 
-    int u, v;
-    if (!reprojectPoint (pt, u, v))
-      continue;
-    pcl::PointXYZRGBA &pt_remapped = cloud_remapped (u, v);
-    if (pcl_isnan (pt_remapped.z) || pt_remapped.z > pt.z)
-      pt_remapped = pt;
-  }
-}
 
 int
 main (int argc, char** argv)
@@ -243,6 +217,10 @@ main (int argc, char** argv)
     ("cx", bpo::value<float> (), "Center pixel x")
     ("cy", bpo::value<float> (), "Center pixel y")
     ("save-ascii", "Save ply file as ASCII rather than binary")
+    ("cloud-units", bpo::value<float> (), "Units of the data, in meters")
+    ("pose-units", bpo::value<float> (), "Units of the poses, in meters")
+    ("max-sensor-dist", bpo::value<float> (), "Maximum distance data can be from the sensor")
+    ("min-sensor-dist", bpo::value<float> (), "Minimum distance data can be from the sensor")
     ;
      
   bpo::variables_map opts;
@@ -268,9 +246,21 @@ main (int argc, char** argv)
   bool world_frame = opts.count ("world");
   bool zero_nans = opts.count ("zero-nans");
   bool save_ascii = opts.count ("save-ascii");
+  float cloud_units = 1.;
+  if (opts.count ("cloud-units"))
+    cloud_units = opts["cloud-units"].as<float> ();
+  float pose_units = 1.;
+  if (opts.count ("pose-units"))
+    pose_units = opts["pose-units"].as<float> ();
   int num_random_splits = 1;
   if (opts.count ("num-random-splits"))
     num_random_splits = opts["num-random-splits"].as<int> ();
+  float max_sensor_dist = 3.0;
+  if (opts.count ("max-sensor-dist"))
+    max_sensor_dist = opts["max-sensor-dist"].as<float> ();
+  float min_sensor_dist = 0;
+  if (opts.count ("min-sensor-dist"))
+    min_sensor_dist = opts["min-sensor-dist"].as<float> ();
   bool binary_poses = false;
   if (opts.count ("width"))
     width_ = opts["width"].as<int> ();
@@ -329,7 +319,8 @@ main (int argc, char** argv)
     ifstream f (pose_files[i].c_str ());
     float v;
     Eigen::Matrix4d mat;
-    for (int y = 0; y < 4; y++)
+    mat (3,0) = 0; mat (3,1) = 0; mat (3,2) = 0; mat (3,3) = 1;
+    for (int y = 0; y < 3; y++)
     {
       for (int x = 0; x < 4; x++)
       {
@@ -344,6 +335,8 @@ main (int argc, char** argv)
     poses[i] = mat;
     if (invert)
       poses[i] = poses[i].inverse ();
+    // Update units
+    poses[i].matrix ().topRightCorner <3, 1> () *= pose_units;
     if (verbose)
     {
       std::cout << "Pose[" << i << "]" << std::endl 
@@ -375,6 +368,7 @@ main (int argc, char** argv)
   tsdf->setImageSize (width_, height_);
   tsdf->setCameraIntrinsics (focal_length_x_, focal_length_y_, principal_point_x_, principal_point_y_);
   tsdf->setNumRandomSplts (num_random_splits);
+  tsdf->setSensorDistanceBounds (min_sensor_dist, max_sensor_dist);
   tsdf->reset ();
   // Load data
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr map (new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -392,6 +386,16 @@ main (int argc, char** argv)
         pcd_files[i].c_str (), pose_files[i].c_str ());
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::io::loadPCDFile (pcd_files[i], *cloud);
+    if (cloud_units != 1)
+    {
+      for (size_t i = 0; i < cloud->size (); i++)
+      {
+        pcl::PointXYZRGBA &pt = cloud->at (i);
+        pt.x *= cloud_units;
+        pt.y *= cloud_units;
+        pt.z *= cloud_units;
+      }
+    }
     // Remove nans
     if (zero_nans)
     {
@@ -408,22 +412,55 @@ main (int argc, char** argv)
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_organized (new pcl::PointCloud<pcl::PointXYZRGBA> (width_, height_));
     if (organized)
     {
+      if (cloud->height != height_ || cloud->width != width_)
+      {
+        PCL_ERROR ("Error: cloud %d has size %d x %d, but TSDF is initialized for %d x %d pointclouds\n", i+1, cloud->width, cloud->height, width_, height_);
+        return (1);
+      }
       pcl::copyPointCloud (*cloud, *cloud_organized);
     }
     else
     {
+      size_t nonnan_original = 0;
+      size_t nonnan_new = 0;
+      float min_x = std::numeric_limits<float>::infinity ();
+      float min_y = std::numeric_limits<float>::infinity ();
+      float min_z = std::numeric_limits<float>::infinity ();
+      float max_x = -std::numeric_limits<float>::infinity ();
+      float max_y = -std::numeric_limits<float>::infinity ();
+      float max_z = -std::numeric_limits<float>::infinity ();
       for (size_t j = 0; j < cloud_organized->size (); j++)
         cloud_organized->at (j).z = std::numeric_limits<float>::quiet_NaN ();
       for (size_t j = 0; j < cloud->size (); j++)
       {
         const pcl::PointXYZRGBA &pt = cloud->at (j);
+        if (verbose && !pcl_isnan (pt.z))
+          nonnan_original++;
         int u, v;
         if (reprojectPoint (pt, u, v))
         {
           pcl::PointXYZRGBA &pt_old = (*cloud_organized) (u, v);
           if (pcl_isnan (pt_old.z) || (pt_old.z > pt.z))
+          {
+            if (verbose)
+            {
+              if (pcl_isnan (pt_old.z))
+                nonnan_new++;
+              if (pt.x < min_x) min_x = pt.x;
+              if (pt.y < min_y) min_y = pt.y;
+              if (pt.z < min_z) min_z = pt.z;
+              if (pt.x > max_x) max_x = pt.x;
+              if (pt.y > max_y) max_y = pt.y;
+              if (pt.z > max_z) max_z = pt.z;
+            }
             pt_old = pt;
+          }
         }
+      }
+      if (verbose)
+      {
+        PCL_INFO ("Reprojection yielded %d valid points, of initial %d\n", nonnan_new, nonnan_original);
+        PCL_INFO ("Cloud bounds: [%f, %f], [%f, %f], [%f, %f]\n", min_x, max_x, min_y, max_y, min_z, max_x);
       }
     }
     if (visualize)
@@ -438,7 +475,8 @@ main (int argc, char** argv)
       vis->spin ();
     }
     //Integrate
-    tsdf->integrateCloud (*cloud_organized, pcl::PointCloud<pcl::Normal> (), poses[i]);
+    Eigen::Affine3d  pose_rel_to_first_frame = poses[0].inverse () * poses[i];
+    tsdf->integrateCloud (*cloud_organized, pcl::PointCloud<pcl::Normal> (), pose_rel_to_first_frame);
   }
   // Save
   boost::filesystem::create_directory (out_dir);
