@@ -222,6 +222,7 @@ main (int argc, char** argv)
     ("pose-units", bpo::value<float> (), "Units of the poses, in meters")
     ("max-sensor-dist", bpo::value<float> (), "Maximum distance data can be from the sensor")
     ("min-sensor-dist", bpo::value<float> (), "Minimum distance data can be from the sensor")
+    ("min-weight", bpo::value<float> (), "Minimum weight to render")
     ("cloud-only", "Save aggregate cloud rather than actually running TSDF")
     ;
      
@@ -263,6 +264,9 @@ main (int argc, char** argv)
   float min_sensor_dist = 0;
   if (opts.count ("min-sensor-dist"))
     min_sensor_dist = opts["min-sensor-dist"].as<float> ();
+  float min_weight = 0;
+  if (opts.count ("min-weight"))
+    min_weight = opts["min-weight"].as<float> ();
   bool binary_poses = false;
   if (opts.count ("width"))
     width_ = opts["width"].as<int> ();
@@ -525,6 +529,7 @@ main (int argc, char** argv)
   else
   {
     cpu_tsdf::MarchingCubesTSDFOctree mc;
+    mc.setMinWeight (min_weight);
     mc.setInputTSDF (tsdf);
     pcl::PolygonMesh::Ptr mesh (new pcl::PolygonMesh);
     mc.reconstruct (*mesh);
