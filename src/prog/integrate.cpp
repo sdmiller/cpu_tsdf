@@ -17,6 +17,7 @@
 #include <pcl/io/ply_io.h>
 #include <pcl/io/vtk_lib_io.h>
 #include <pcl/pcl_macros.h>
+#include <pcl/filters/voxel_grid.h>
 #include <pcl/segmentation/extract_clusters.h>
 
 #include <boost/filesystem/convenience.hpp>
@@ -221,6 +222,7 @@ main (int argc, char** argv)
     ("pose-units", bpo::value<float> (), "Units of the poses, in meters")
     ("max-sensor-dist", bpo::value<float> (), "Maximum distance data can be from the sensor")
     ("min-sensor-dist", bpo::value<float> (), "Minimum distance data can be from the sensor")
+    ("cloud-only", "Save aggregate cloud rather than actually running TSDF")
     ;
      
   bpo::variables_map opts;
@@ -279,6 +281,8 @@ main (int argc, char** argv)
     principal_point_x_ = opts["cx"].as<float> ();
   if (opts.count ("cy"))
     principal_point_y_ = opts["cy"].as<float> ();
+  
+  bool cloud_only = opts.count ("cloud-only");
 
   pcl::console::TicToc tt;
   tt.tic ();
@@ -362,14 +366,18 @@ main (int argc, char** argv)
   }
   tsdf_res = n;
   // Initialize
-  cpu_tsdf::TSDFVolumeOctree::Ptr tsdf (new cpu_tsdf::TSDFVolumeOctree);
-  tsdf->setGridSize (tsdf_size, tsdf_size, tsdf_size);
-  tsdf->setResolution (tsdf_res, tsdf_res, tsdf_res);
-  tsdf->setImageSize (width_, height_);
-  tsdf->setCameraIntrinsics (focal_length_x_, focal_length_y_, principal_point_x_, principal_point_y_);
-  tsdf->setNumRandomSplts (num_random_splits);
-  tsdf->setSensorDistanceBounds (min_sensor_dist, max_sensor_dist);
-  tsdf->reset ();
+  cpu_tsdf::TSDFVolumeOctree::Ptr tsdf;
+  if (!cloud_only)
+  {
+    tsdf.reset (new cpu_tsdf::TSDFVolumeOctree);
+    tsdf->setGridSize (tsdf_size, tsdf_size, tsdf_size);
+    tsdf->setResolution (tsdf_res, tsdf_res, tsdf_res);
+    tsdf->setImageSize (width_, height_);
+    tsdf->setCameraIntrinsics (focal_length_x_, focal_length_y_, principal_point_x_, principal_point_y_);
+    tsdf->setNumRandomSplts (num_random_splits);
+    tsdf->setSensorDistanceBounds (min_sensor_dist, max_sensor_dist);
+    tsdf->reset ();
+  }
   // Load data
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr map (new pcl::PointCloud<pcl::PointXYZRGBA>);
   // Set up visualization
@@ -379,9 +387,15 @@ main (int argc, char** argv)
      vis.reset (new pcl::visualization::PCLVisualizer);
      vis->addCoordinateSystem ();
   } 
-  for (size_t i = 0; i < pcd_files.size (); i++)
+  
+  // Initialize aggregate cloud if we are just doing that instead
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr aggregate;
+  if (cloud_only)
+    aggregate.reset (new pcl::PointCloud<pcl::PointXYZRGBA>);
+  size_t num_frames = pcd_files.size ();
+  for (size_t i = 0; i < num_frames; i++)
   {
-    PCL_INFO ("On frame %d / %d\n", i+1, pcd_files.size ());
+    PCL_INFO ("On frame %d / %d\n", i+1, num_frames);
     PCL_INFO ("Cloud: %s, pose: %s\n", 
         pcd_files[i].c_str (), pose_files[i].c_str ());
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -463,7 +477,7 @@ main (int argc, char** argv)
         PCL_INFO ("Cloud bounds: [%f, %f], [%f, %f], [%f, %f]\n", min_x, max_x, min_y, max_y, min_z, max_x);
       }
     }
-    if (visualize)
+    if (visualize) // Just for visualization purposes
     {
       vis->removeAllPointClouds ();
       pcl::PointCloud<pcl::PointXYZRGBA> cloud_trans;
@@ -476,23 +490,54 @@ main (int argc, char** argv)
     }
     //Integrate
     Eigen::Affine3d  pose_rel_to_first_frame = poses[0].inverse () * poses[i];
-    tsdf->integrateCloud (*cloud_organized, pcl::PointCloud<pcl::Normal> (), pose_rel_to_first_frame);
+    if (cloud_only) // Only if we're just dumping out the cloud
+    {
+      pcl::PointCloud<pcl::PointXYZRGBA> cloud_unorganized;
+      for (size_t i = 0; i < cloud_organized->size (); i++)
+      {
+        if (!pcl_isnan (cloud_organized->at (i).z))
+          cloud_unorganized.push_back (cloud_organized->at (i));
+      }
+      pcl::transformPointCloud (cloud_unorganized, cloud_unorganized, pose_rel_to_first_frame);
+      *aggregate += cloud_unorganized;
+      // Filter so it doesn't get too big
+      if (i % 20 == 0 || i == num_frames - 1)
+      {
+        pcl::VoxelGrid<pcl::PointXYZRGBA> vg;
+        vg.setLeafSize (0.01, 0.01, 0.01);
+        vg.setInputCloud (aggregate);
+        vg.filter (cloud_unorganized);
+        *aggregate = cloud_unorganized;
+      }
+    }
+    else
+    {
+      tsdf->integrateCloud (*cloud_organized, pcl::PointCloud<pcl::Normal> (), pose_rel_to_first_frame);
+    }
   }
   // Save
   boost::filesystem::create_directory (out_dir);
-  cpu_tsdf::MarchingCubesTSDFOctree mc;
-  mc.setInputTSDF (tsdf);
-  pcl::PolygonMesh::Ptr mesh (new pcl::PolygonMesh);
-  mc.reconstruct (*mesh);
-  if (flatten)
-    flattenVertices (*mesh);
-  if (cleanup)
-    cleanupMesh (*mesh);
-  PCL_INFO ("Entire pipeline took %f ms\n", tt.toc ());
-  if (save_ascii)
-    pcl::io::savePLYFile (out_dir + "/mesh.ply", *mesh);
+  // If we're just saving the cloud, no need to mesh
+  if (cloud_only)
+  {
+    pcl::io::savePCDFileBinaryCompressed (out_dir + "/cloud.pcd", *aggregate);
+  }
   else
-    pcl::io::savePLYFileBinary (out_dir + "/mesh.ply", *mesh);
+  {
+    cpu_tsdf::MarchingCubesTSDFOctree mc;
+    mc.setInputTSDF (tsdf);
+    pcl::PolygonMesh::Ptr mesh (new pcl::PolygonMesh);
+    mc.reconstruct (*mesh);
+    if (flatten)
+      flattenVertices (*mesh);
+    if (cleanup)
+      cleanupMesh (*mesh);
+    PCL_INFO ("Entire pipeline took %f ms\n", tt.toc ());
+    if (save_ascii)
+      pcl::io::savePLYFile (out_dir + "/mesh.ply", *mesh);
+    else
+      pcl::io::savePLYFileBinary (out_dir + "/mesh.ply", *mesh);
+  }
 }
 
   
