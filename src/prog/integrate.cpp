@@ -202,6 +202,7 @@ main (int argc, char** argv)
     ("out", bpo::value<std::string> ()->required (), "Output dir")
     ("volume-size", bpo::value<float> (), "Volume size")
     ("cell-size", bpo::value<float> (), "Cell size")
+    ("num-frames", bpo::value<size_t> (), "Partially integrate the sequence: only the first N frames")
     ("visualize", "Visualize")
     ("verbose", "Verbose")
     ("color", "Store color in addition to depth in the TSDF")
@@ -400,6 +401,18 @@ main (int argc, char** argv)
   if (cloud_only)
     aggregate.reset (new pcl::PointCloud<pcl::PointXYZRGBA>);
   size_t num_frames = pcd_files.size ();
+  if (opts.count ("num-frames"))
+  {
+    size_t user_selected_num_frames = opts["num-frames"].as<size_t> ();
+    if (user_selected_num_frames <= num_frames)
+    {
+      num_frames = user_selected_num_frames;
+    }
+    else
+    {
+      PCL_WARN("Warning: Manually input --num-frames=%zu, but the sequence only has %zu clouds. Ignoring user specification.\n", user_selected_num_frames, num_frames);
+    }
+  }
   for (size_t i = 0; i < num_frames; i++)
   {
     PCL_INFO ("On frame %d / %d\n", i+1, num_frames);
