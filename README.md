@@ -60,7 +60,7 @@ As the long list of parameters should clue you in to, this is a fairly versatile
 0 0 0 1 //last row optional
 ```
 
-By convention, this is the transform which can be applied to the cloud to bring it into the world coordinate system. If you use the opposite convention (the pose is the world in the current camera frame) you can use the --invert option.
+By convention, this is the transform which can be applied to the cloud to bring it into the world coordinate system. Note that this is identical to the Eigen::Matrix4f which pcl::IterativeClosestPoint, and other alignment methods, return when aligning cloud[i] to cloud[j]. Note also that transform[i->0] = transform[i->i-1]\*transform[i-1->i-2]\*...\*transform[0]. Hint hint. If you use the opposite convention (the pose is the world in the current camera frame) you can use the --invert option.
 
 This will create a file at path/to/desired/output/mesh.ply.
 
