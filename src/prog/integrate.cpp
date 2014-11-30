@@ -403,8 +403,19 @@ main (int argc, char** argv)
   for (size_t i = 0; i < num_frames; i++)
   {
     PCL_INFO ("On frame %d / %d\n", i+1, num_frames);
-    PCL_INFO ("Cloud: %s, pose: %s\n", 
+    if (poses.size () <= i)
+    {
+      PCL_WARN ("Warning: no matching pose file found for cloud %s.\n"
+                "Defaulting to identity, but unless the camera never moved, this will yield a very poor mesh!\n", 
+                pcd_files[i].c_str ());
+      pose_files.push_back ("not_found");
+      poses.push_back (Eigen::Affine3d::Identity ());
+    }
+    else
+    {
+      PCL_INFO ("Cloud: %s, pose: %s\n", 
         pcd_files[i].c_str (), pose_files[i].c_str ());
+    }
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::io::loadPCDFile (pcd_files[i], *cloud);
     if (cloud_units != 1)
