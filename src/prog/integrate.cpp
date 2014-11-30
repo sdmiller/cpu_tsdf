@@ -204,6 +204,7 @@ main (int argc, char** argv)
     ("cell-size", bpo::value<float> (), "Cell size")
     ("visualize", "Visualize")
     ("verbose", "Verbose")
+    ("color", "Store color in addition to depth in the TSDF")
     ("flatten", "Flatten mesh vertices")
     ("cleanup", "Clean up mesh")
     ("invert", "Transforms are inverted (world -> camera)")
@@ -287,6 +288,7 @@ main (int argc, char** argv)
     principal_point_y_ = opts["cy"].as<float> ();
   
   bool cloud_only = opts.count ("cloud-only");
+  bool integrate_color = opts.count("color");
 
   pcl::console::TicToc tt;
   tt.tic ();
@@ -380,6 +382,7 @@ main (int argc, char** argv)
     tsdf->setCameraIntrinsics (focal_length_x_, focal_length_y_, principal_point_x_, principal_point_y_);
     tsdf->setNumRandomSplts (num_random_splits);
     tsdf->setSensorDistanceBounds (min_sensor_dist, max_sensor_dist);
+    tsdf->setIntegrateColor (integrate_color);
     tsdf->reset ();
   }
   // Load data
@@ -531,6 +534,10 @@ main (int argc, char** argv)
     cpu_tsdf::MarchingCubesTSDFOctree mc;
     mc.setMinWeight (min_weight);
     mc.setInputTSDF (tsdf);
+    if (integrate_color)
+    {
+      mc.setColorByRGB (true);
+    }
     pcl::PolygonMesh::Ptr mesh (new pcl::PolygonMesh);
     mc.reconstruct (*mesh);
     if (flatten)
