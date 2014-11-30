@@ -44,7 +44,7 @@ Let's say you have a list of PointClouds (in the sensor frame) and the camera po
 
 These are just the basics. You can add colors, store your own metadata in voxels (see octree.h), etc. Please ping me for bugs!
 
-Executables
+Handy Tools
 =====
 
 To help get the ball rolling, I have one major executable, **./integrate**.
