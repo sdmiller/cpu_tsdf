@@ -44,9 +44,29 @@ Let's say you have a list of PointClouds (in the sensor frame) and the camera po
 
 These are just the basics. You can add colors, store your own metadata in voxels (see octree.h), etc. Please ping me for bugs!
 
-Note on the codebase
-====
+Executables
+=====
 
-You'll notice some extraneous-seeming layouts to the codebase: eigen_extensions vs cpu_tsdf, TSDFInterface as a parent of TSDFVolumeOctree. At the moment this probably seems unnecessary; it's a biproduct of the fact that other methods (GPU-based as used by KinectFyusion, CPU with no octree as used by my masochistic past-self) have also existed in unstable forms, in larger projects. I leave this layer of 
+To help get the ball rolling, I have one major executable, *./integrate*.
+
+Usage: integrate --in path/to/pcd_directory --out path/to/desired/output [many optional parameters, use --help to view]
+
+As the long list of parameters should clue you in to, this is a fairly versatile program. Its job is to read in a directory of .pcd files and .txt files, where foo.txt is a 4 row ASCII matrix representing the pose of foo.pcd in some arbitrary reference frame (typically such that the first PCD has an identity pose.) The contents of foo.txt may look like:
+
+1 0 0 0
+0 1 0 0
+0 0 1 0
+0 0 0 1 //last row optional
+
+By convention, this is the transform which can be applied to the cloud to bring it into the world coordinate system. If you use the opposite convention (the pose is the world in the current camera frame) you can use the --invert option.
+
+This will create a file at path/to/desired/output/mesh.ply.
+
+To help adapt parameters for your sensor, I added the *./get_intrinsics* tool. Provide it an organized point cloud from any sensor (i.e. has cloud.width, cloud.height, and either NaN or a point at all width*height locations) and it will output the best guess at focal length and center pixel.
+
+Note on the codebase
+=====
+
+You'll notice some extraneous-seeming layouts to the codebase: eigen\_extensions vs cpu\_tsdf, TSDFInterface as a parent of TSDFVolumeOctree. At the moment this probably seems unnecessary; it's a biproduct of the fact that other methods (GPU-based as used by KinectFyusion, CPU with no octree as used by my masochistic past-self) have also existed in unstable forms, in larger projects. I leave this layer of 
 abstraction here on the off chance that I port the others to the project (modulo public interest), but feel 
 free to ignore it for now and judge me accordingly.
