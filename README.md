@@ -47,7 +47,7 @@ These are just the basics. You can add colors, store your own metadata in voxels
 Executables
 =====
 
-To help get the ball rolling, I have one major executable, *./integrate*.
+To help get the ball rolling, I have one major executable, **./integrate**.
 
 Usage: integrate --in path/to/pcd_directory --out path/to/desired/output [many optional parameters, use --help to view]
 
@@ -62,7 +62,7 @@ By convention, this is the transform which can be applied to the cloud to bring 
 
 This will create a file at path/to/desired/output/mesh.ply.
 
-To help adapt parameters for your sensor, I added the *./get_intrinsics* tool. Provide it an organized point cloud from any sensor (i.e. has cloud.width, cloud.height, and either NaN or a point at all width*height locations) and it will output the best guess at focal length and center pixel.
+To help adapt parameters for your sensor, I added the **./get_intrinsics** tool. Provide it an organized point cloud from any sensor (i.e. has cloud.width, cloud.height, and either NaN or a point at all width*height locations) and it will output the best guess at focal length and center pixel.
 
 Note on the codebase
 =====
