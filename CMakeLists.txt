@@ -49,7 +49,11 @@ install(TARGETS tsdf2mesh DESTINATION bin)
 configure_file (${PROJECT_SOURCE_DIR}/CPUTSDFConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake DESTINATION share)
 
-add_executable (integrate src/prog/integrate.cpp)
+if (APPLE)
+  add_executable (integrate MACOSX_BUNDLE src/prog/integrate.cpp)
+else(APPLE)
+  add_executable (integrate src/prog/integrate.cpp)
+endif(APPLE)
 target_link_libraries(integrate ${PCL_LIBRARIES} cpu_tsdf boost_program_options)
 install(TARGETS integrate DESTINATION bin)
 
