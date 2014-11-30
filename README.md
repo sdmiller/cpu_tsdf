@@ -47,6 +47,6 @@ These are just the basics. You can add colors, store your own metadata in voxels
 Note on the codebase
 ====
 
-You'll notice some extraneous-seeming layouts to the codebase: eigen_extensions vs cpu_tsdf, TSDFInterface as a parent of TSDFVolumeOctree. At the moment this probably seems unnecessary; it's a biproduct of the fact that other methods (GPU-based as used by KinectFyusion, CPU with no octree as used by my masochistic past-self) have also existed in unstable forms, in greater projects. I leave this layer of 
+You'll notice some extraneous-seeming layouts to the codebase: eigen_extensions vs cpu_tsdf, TSDFInterface as a parent of TSDFVolumeOctree. At the moment this probably seems unnecessary; it's a biproduct of the fact that other methods (GPU-based as used by KinectFyusion, CPU with no octree as used by my masochistic past-self) have also existed in unstable forms, in larger projects. I leave this layer of 
 abstraction here on the off chance that I port the others to the project (modulo public interest), but feel 
 free to ignore it for now and judge me accordingly.
