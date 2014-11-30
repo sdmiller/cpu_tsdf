@@ -18,6 +18,7 @@ Let's say you have a list of PointClouds (in the sensor frame) and the camera po
  TSDFVolumeOctree::Ptr tsdf (new TSDFVolumeOctree);
  tsdf->setGridSize (10., 10., 10.); // 10m x 10m x 10m
  tsdf->setResolution (2048, 2048, 2048); // Smallest cell size = 10m / 2048 = about half a centimeter
+ tsdf->setIntegrateColor (false); // Set to true if you want the TSDF to store color
  Eigen::Affine3d tsdf_center; // Optionally offset the center
  tsdf->setGlobalTransform (tsdf_center);
  tsdf->reset (); // Initialize it to be empty
@@ -35,6 +36,8 @@ Let's say you have a list of PointClouds (in the sensor frame) and the camera po
  // Mesh with marching cubes
  MarchingCubesTSDFOctree mc;
  mc.setInputTSDF (tsdf);
+ mc.setMinWeight (2); // Sets the minimum weight -- i.e. if a voxel sees a point less than 2 times, it will not render  a mesh triangle at that location
+ mc.setColorByRGB (false); // If true, tries to use the RGB values of the TSDF for meshing -- required if you want a colored mesh
  pcl::PolygonMesh mesh;
  mc.reconstruct (mesh);
 ```
