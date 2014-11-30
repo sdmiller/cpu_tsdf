@@ -54,8 +54,11 @@ Usage: integrate --in path/to/pcd_directory --out path/to/desired/output [many o
 As the long list of parameters should clue you in to, this is a fairly versatile program. Its job is to read in a directory of .pcd files and .txt files, where foo.txt is a 4 row ASCII matrix representing the pose of foo.pcd in some arbitrary reference frame (typically such that the first PCD has an identity pose.) The contents of foo.txt may look like:
 
 1 0 0 0
+
 0 1 0 0
+
 0 0 1 0
+
 0 0 0 1 //last row optional
 
 By convention, this is the transform which can be applied to the cloud to bring it into the world coordinate system. If you use the opposite convention (the pose is the world in the current camera frame) you can use the --invert option.
