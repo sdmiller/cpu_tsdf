@@ -34,6 +34,9 @@ add_definitions(${PCL_DEFINITIONS})
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+export(PACKAGE CPUTSDF)
+
+# create the CPUTSDF library
 add_library (cpu_tsdf SHARED
               src/lib/octree.cpp
               src/lib/tsdf_volume_octree.cpp
@@ -43,11 +46,10 @@ add_library (cpu_tsdf SHARED
             target_link_libraries (cpu_tsdf ${PCL_LIBRARIES})
 install(TARGETS cpu_tsdf DESTINATION lib${LIB_SUFFIX})
 
+# Create the executables
 add_executable (tsdf2mesh src/prog/tsdf2mesh.cpp)
 target_link_libraries(tsdf2mesh ${PCL_LIBRARIES} cpu_tsdf)
 install(TARGETS tsdf2mesh DESTINATION bin)
-configure_file (${PROJECT_SOURCE_DIR}/CPUTSDFConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake DESTINATION share)
 
 if (APPLE)
   add_executable (integrate MACOSX_BUNDLE src/prog/integrate.cpp)
@@ -60,4 +62,23 @@ install(TARGETS integrate DESTINATION bin)
 add_executable (get_intrinsics src/prog/get_intrinsics.cpp)
 target_link_libraries(get_intrinsics ${PCL_LIBRARIES} boost_program_options)
 install(TARGETS get_intrinsics DESTINATION bin)
+
+# Install the Header files preserving the directory
+set(HEADER_FILES include/cpu_tsdf/impl/tsdf_volume_octree.hpp
+		 include/cpu_tsdf/marching_cubes_tsdf_octree.h
+		 include/cpu_tsdf/octree.h
+		 include/cpu_tsdf/tsdf_interface.h
+		 include/cpu_tsdf/tsdf_volume_octree.h
+		 include/eigen_extensions/eigen_extensions.h
+)
+
+FOREACH(HEADER ${HEADER_FILES})
+	STRING(REGEX MATCH "(.*)[/]" DIR ${HEADER})
+	INSTALL(FILES ${HEADER} DESTINATION ${DIR})
+ENDFOREACH(HEADER)
+
+# Install CPUTSDF cmake config file for FIND_PACKAGE()
+configure_file (${PROJECT_SOURCE_DIR}/CPUTSDFConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CPUTSDFConfig.cmake DESTINATION share/cpu_tsdf)
+
 
