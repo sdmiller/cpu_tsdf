@@ -63,6 +63,7 @@ add_executable (get_intrinsics src/prog/get_intrinsics.cpp)
 target_link_libraries(get_intrinsics ${PCL_LIBRARIES} boost_program_options)
 install(TARGETS get_intrinsics DESTINATION bin)
 
+>>>>>>> c26659f97218476fd2a8c107c74c1735b38f808b
 # Install the Header files preserving the directory
 set(HEADER_FILES include/cpu_tsdf/impl/tsdf_volume_octree.hpp
 		 include/cpu_tsdf/marching_cubes_tsdf_octree.h
