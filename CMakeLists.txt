@@ -25,11 +25,13 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 find_package(PCL 1.7 QUIET REQUIRED)
 
-find_package(Boost COMPONENTS program_options)
-
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
+
+find_package(Boost COMPONENTS program_options)
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
 
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -56,11 +58,11 @@ if (APPLE)
 else(APPLE)
   add_executable (integrate src/prog/integrate.cpp)
 endif(APPLE)
-target_link_libraries(integrate ${PCL_LIBRARIES} cpu_tsdf boost_program_options)
+target_link_libraries(integrate ${PCL_LIBRARIES} cpu_tsdf ${Boost_PROGRAM_OPTIONS_LIBRARY})
 install(TARGETS integrate DESTINATION bin)
 
 add_executable (get_intrinsics src/prog/get_intrinsics.cpp)
-target_link_libraries(get_intrinsics ${PCL_LIBRARIES} boost_program_options)
+target_link_libraries(get_intrinsics ${PCL_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 install(TARGETS get_intrinsics DESTINATION bin)
 
 # Install the Header files preserving the directory
