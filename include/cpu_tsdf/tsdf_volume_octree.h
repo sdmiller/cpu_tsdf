@@ -201,7 +201,7 @@ namespace cpu_tsdf
     void
     reset ();
 
-    /** \brief Save in ascii format to disk */
+    /** \brief Save to disk */
     void
     save (const std::string &filename) const;
     

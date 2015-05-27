@@ -51,6 +51,12 @@
 int
 main (int argc, char** argv)
 {
+  if (argc < 3)
+  {
+    PCL_INFO ("This is a utility program meant to render a mesh from a TSDF Volume, which can be saved to disk via TSDFVolumeOctree::save(const std::string &filename).\n");
+    PCL_INFO ("Usage: %s foo.vol foo.ply", argv[0]);
+    return (1);
+  }
   std::string volume_file = argv[1];
   std::string mesh_file = argv[2];
   PCL_INFO ("Converting %s -> %s\n", volume_file.c_str (), mesh_file.c_str ());

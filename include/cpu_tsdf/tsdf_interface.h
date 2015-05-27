@@ -124,7 +124,7 @@ namespace cpu_tsdf
     virtual void
     getSensorDistanceBounds (float &min_sensor_dist, float &max_sensor_dist) const = 0;
 
-    /** \brief Save in ascii format to disk */
+    /** \brief Save to disk */
     virtual void
     save (const std::string &filename) const = 0;
     
