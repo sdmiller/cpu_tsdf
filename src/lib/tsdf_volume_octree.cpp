@@ -563,12 +563,12 @@ cpu_tsdf::TSDFVolumeOctree::getVoxelCenter (size_t x, size_t y, size_t z) const
 bool
 cpu_tsdf::TSDFVolumeOctree::getVoxelIndex (float x, float y, float z, int &x_i, int &y_i, int &z_i) const
 {
-  float xoff = xsize_/2;
-  float yoff = ysize_/2;
-  float zoff = zsize_/2;
-  x_i = (x + xoff) / xsize_ * xres_ + 0.5;
-  y_i = (y + yoff) / ysize_ * yres_ + 0.5;
-  z_i = (z + zoff) / zsize_ * zres_ + 0.5;
+  double xoff = (double)xsize_/2;
+  double yoff = (double)ysize_/2;
+  double zoff = (double)zsize_/2;
+  x_i = ((double)x + xoff) / (double)xsize_ * xres_;// + 0.5;
+  y_i = ((double)y + yoff) / (double)ysize_ * yres_;// + 0.5;
+  z_i = ((double)z + zoff) / (double)zsize_ * zres_;// + 0.5;
   bool has_voxel = (x_i >= 0 && y_i >= 0 && z_i >= 0 
                   && x_i < xres_ && y_i < yres_ && z_i < zres_);
   return (has_voxel);
