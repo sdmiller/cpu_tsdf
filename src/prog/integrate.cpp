@@ -306,7 +306,7 @@ main (int argc, char** argv)
   float trunc_dist_pos = 0.03;
   if (opts.count ("trunc-dist-pos"))
     trunc_dist_pos = opts["trunc-dist-pos"].as<float> ();
-  float trunc_dist_neg = 0;
+  float trunc_dist_neg = 0.03;
   if (opts.count ("trunc-dist-neg"))
     trunc_dist_neg = opts["trunc-dist-neg"].as<float> ();
   bool binary_poses = false;
