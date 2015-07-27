@@ -256,6 +256,8 @@ main (int argc, char** argv)
     ("pose-units", bpo::value<float> (), "Units of the poses, in meters")
     ("max-sensor-dist", bpo::value<float> (), "Maximum distance data can be from the sensor")
     ("min-sensor-dist", bpo::value<float> (), "Minimum distance data can be from the sensor")
+    ("trunc-dist-pos", bpo::value<float> (), "Positive truncation distance")
+    ("trunc-dist-neg", bpo::value<float> (), "Negative truncation distance")
     ("min-weight", bpo::value<float> (), "Minimum weight to render")
     ("cloud-only", "Save aggregate cloud rather than actually running TSDF")
     ;
@@ -301,6 +303,12 @@ main (int argc, char** argv)
   float min_weight = 0;
   if (opts.count ("min-weight"))
     min_weight = opts["min-weight"].as<float> ();
+  float trunc_dist_pos = 0.03;
+  if (opts.count ("trunc-dist-pos"))
+    trunc_dist_pos = opts["trunc-dist-pos"].as<float> ();
+  float trunc_dist_neg = 0.03;
+  if (opts.count ("trunc-dist-neg"))
+    trunc_dist_neg = opts["trunc-dist-neg"].as<float> ();
   bool binary_poses = false;
   if (opts.count ("width"))
     width_ = opts["width"].as<int> ();
@@ -410,12 +418,14 @@ main (int argc, char** argv)
   {
     tsdf.reset (new cpu_tsdf::TSDFVolumeOctree);
     tsdf->setGridSize (tsdf_size, tsdf_size, tsdf_size);
+    PCL_INFO("Setting resolution: %d with grid size %f\n", tsdf_res, tsdf_size);
     tsdf->setResolution (tsdf_res, tsdf_res, tsdf_res);
     tsdf->setImageSize (width_, height_);
     tsdf->setCameraIntrinsics (focal_length_x_, focal_length_y_, principal_point_x_, principal_point_y_);
     tsdf->setNumRandomSplts (num_random_splits);
     tsdf->setSensorDistanceBounds (min_sensor_dist, max_sensor_dist);
     tsdf->setIntegrateColor (integrate_color);
+    tsdf->setDepthTruncationLimits (trunc_dist_pos, trunc_dist_neg);
     tsdf->reset ();
   }
   // Load data
@@ -600,11 +610,18 @@ main (int argc, char** argv)
       flattenVertices (*mesh);
     if (cleanup)
       cleanupMesh (*mesh);
+    if (visualize)
+    {
+      vis->removeAllPointClouds ();
+      vis->addPolygonMesh (*mesh);
+      vis->spin ();
+    }
     PCL_INFO ("Entire pipeline took %f ms\n", tt.toc ());
     if (save_ascii)
       pcl::io::savePLYFile (out_dir + "/mesh.ply", *mesh);
     else
       pcl::io::savePLYFileBinary (out_dir + "/mesh.ply", *mesh);
+    PCL_INFO ("Saved to %s/mesh.ply\n", out_dir.c_str ());
   }
 }
 
