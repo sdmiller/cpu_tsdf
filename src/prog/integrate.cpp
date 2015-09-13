@@ -219,6 +219,30 @@ reprojectPoint (const pcl::PointXYZRGBA &pt, int &u, int &v)
   return (!pcl_isnan (pt.z) && pt.z > 0 && u >= 0 && u < width_ && v >= 0 && v < height_);
 }
 
+std::string getSharedPrefix (const std::vector<std::string> &files)
+{
+  // Compare the first and last (sorted) string
+  const std::string &first = files.front ();
+  const std::string &last = files.back ();
+  // March til we break or hit a numeric character;
+  int i;
+  for (i = 0; i < first.length (); i++)
+  {
+    if (first[i] != last[i] || std::isdigit(first[i]))
+    {
+      break;
+    }
+  }
+  if (i == 0)
+  {
+    return ("");
+  }
+  else
+  {
+    return (first.substr (0, i));
+  }
+}
+
 
 int
 main (int argc, char** argv)
@@ -336,31 +360,75 @@ main (int argc, char** argv)
   // Scrape files
   std::vector<std::string> pcd_files;
   std::vector<std::string> pose_files;
+  std::vector<std::string> pose_files_unordered;
+  bool found_pose_file = false;
+  std::string pose_extension = "";
   std::string dir = opts["in"].as<std::string> ();
   std::string out_dir = opts["out"].as<std::string> ();
   boost::filesystem::directory_iterator end_itr;
   for (boost::filesystem::directory_iterator itr (dir); itr != end_itr; ++itr)
   {
-    std::string extension = boost::algorithm::to_upper_copy
-      (boost::filesystem::extension (itr->path ()));
-    std::string basename = boost::filesystem::basename (itr->path ());
+    std::string extension = boost::filesystem::extension (itr->path ());
     std::string pathname = itr->path ().string ();
-    if (extension == ".pcd" || extension == ".PCD")
+    // Look for PCD files
+    if (extension == ".PCD" || extension == ".pcd")
     {
       pcd_files.push_back (pathname);
     }
-    else if (extension == ".transform" || extension == ".TRANSFORM")
+    else if (extension == ".TRANSFORM" || extension == ".transform")
     {
-      pose_files.push_back (pathname);
-      binary_poses = true;
+      if (found_pose_file && extension != pose_extension)
+      {
+        PCL_ERROR ("Files with extension %s and %s were found in this folder! Please choose a consistent extension.\n", extension.c_str (), pose_extension.c_str ());
+        return (1);
+      }
+      else if (!found_pose_file)
+      {
+        found_pose_file = true;
+        binary_poses = true;
+        pose_extension = extension;
+      }
+      pose_files_unordered.push_back (pathname);
     }
-    else if (extension == ".txt" || extension == ".TXT")
+    else if (extension == ".TXT" || extension == ".txt")
     {
-      pose_files.push_back (pathname);
-      binary_poses = false;
+      if (found_pose_file && extension != pose_extension)
+      {
+        PCL_ERROR ("Files with extension %s and %s were found in this folder! Please choose a consistent extension.\n", extension.c_str (), pose_extension.c_str ());
+        return (1);
+      }
+      else if (!found_pose_file)
+      {
+        found_pose_file = true;
+        binary_poses = false;
+        pose_extension = extension;
+      }
+      pose_files_unordered.push_back (pathname);
     }
   }
+  // Sort PCDS
   std::sort (pcd_files.begin (), pcd_files.end ());
+  std::sort (pose_files_unordered.begin (), pose_files_unordered.end ());
+  std::string pcd_prefix = getSharedPrefix(pcd_files);
+  std::string pose_prefix = getSharedPrefix(pose_files_unordered);
+  PCL_INFO ("Found PCD files with prefix: %s, poses with prefix: %s poses\n", pcd_prefix.c_str (), pose_prefix.c_str ());
+  // For each PCD, get the pose file
+  for (size_t i = 0; i < pcd_files.size (); i++)
+  {
+    const std::string pcd_path = pcd_files[i];
+    std::string suffix = boost::filesystem::basename (boost::filesystem::path (pcd_path.substr (pcd_prefix.length())));
+    std::string pose_path = pose_prefix+suffix+pose_extension;
+    // Check if .transform file exists
+    if (boost::filesystem::exists (pose_path))
+    {
+      pose_files.push_back (pose_path);
+    }
+    else
+    {
+      PCL_ERROR ("Could not find matching transform file for %s\n", pcd_path.c_str ());
+      return 1;
+    }
+  }
   std::sort (pose_files.begin (), pose_files.end ());
   PCL_INFO ("Reading in %s pose files\n", 
             binary_poses ? "binary" : "ascii");
