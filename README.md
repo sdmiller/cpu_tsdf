@@ -3,6 +3,8 @@ approach to that of Curless and Levoy, as made popular by KinectFusion. This run
 efficiently compress free space and scale to larger environments than can fit on a GPU. Also comes with 
 a Marching Cube implementation, for extracting the isosurface.
 
+Note: This tool is meant primarily for exploring the basics of volumetric reconstruction / mocking up ideas in a research setting. Everyone says their code is "unoptimized" as a sort of Get Out Of Jail Free Card in academia, but here it's true by design: I represent the volume as a collection of pointers to (abstract) Voxel objects, and make all calls recursively...including I/O calls. That has the benefit of being very simple to modify / extend, while seriously hurting performance. As such, I'd suggest using cpu_tsdf only as a research tool for figuring out what parameters/architecture you'd like. Once you've settled on it, you'll probably want to homebrew your own solution before deploying it in the wild.
+
 Build Instructions
 ===================
 ```bash
