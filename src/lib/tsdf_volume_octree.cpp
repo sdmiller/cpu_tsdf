@@ -639,9 +639,9 @@ cpu_tsdf::TSDFVolumeOctree::getFrustumCulledVoxels (const Eigen::Affine3d &trans
                0, 0, 0, 1;
   Eigen::Matrix4f trans_robot = trans.matrix ().cast<float> () * cam2robot;
   fc.setCameraPose (trans_robot);
-  // Set the FOV a little wider to account for overlap
-  fc.setHorizontalFOV (70);
-  fc.setVerticalFOV (70);
+  // Set the FOV based on focal length and image size
+  fc.setHorizontalFOV (1.1 * 2*fabs(atan(0.5*image_width_/focal_length_x_) * 180 / M_PI));
+  fc.setVerticalFOV (1.1 * 2*fabs(atan(0.5*image_height_/focal_length_y_) * 180 / M_PI));
   fc.setNearPlaneDistance (min_sensor_dist_);
   fc.setFarPlaneDistance (max_sensor_dist_);
   fc.setInputCloud (voxel_cloud);
