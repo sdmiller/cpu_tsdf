@@ -553,7 +553,6 @@ cpu_tsdf::TSDFVolumeOctree::getIntensityCloud (const Eigen::Affine3d &trans) con
 pcl::PointXYZ
 cpu_tsdf::TSDFVolumeOctree::getVoxelCenter (size_t x, size_t y, size_t z) const
 {
-  // return voxel_centers_->at (x*(yres_*zres_) + y*zres_ + z);
   float xoff = xsize_/2;
   float yoff = ysize_/2;
   float zoff = zsize_/2;
@@ -577,7 +576,6 @@ cpu_tsdf::TSDFVolumeOctree::getVoxelIndex (float x, float y, float z, int &x_i, 
 pcl::PointCloud<pcl::PointXYZ>::ConstPtr
 cpu_tsdf::TSDFVolumeOctree::getVoxelCenters (int nlevels) const
 {
-  //return voxel_centers_;
   std::vector<cpu_tsdf::OctreeNode::Ptr> voxels;
   octree_->getLeaves (voxels, nlevels);
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ> (voxels.size (), 1));
