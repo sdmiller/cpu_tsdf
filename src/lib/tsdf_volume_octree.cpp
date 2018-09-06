@@ -357,7 +357,7 @@ cpu_tsdf::TSDFVolumeOctree::renderView (const Eigen::Affine3d &trans, int downsa
         last_d = d;
         last_w = w;
         // Update step
-        step = std::max (voxel->getMinSize () / 4., fabs (d)*max_dist_neg_);
+        step = std::max ((float)voxel->getMinSize () / 4.f, (float)(fabs (d)*max_dist_neg_));
       }
       else
       {
