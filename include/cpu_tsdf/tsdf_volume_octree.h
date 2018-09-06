@@ -373,6 +373,9 @@ namespace cpu_tsdf
 
     // Cloud which stores the voxel centers
     pcl::PointCloud<pcl::PointXYZ>::Ptr voxel_centers_;
+
+  public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
   };
 }
