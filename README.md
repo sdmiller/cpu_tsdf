@@ -78,4 +78,4 @@ free to ignore it for now and judge me accordingly.
 Sample Data
 =====
 
-I've adapted a small slice of the Augmented ICL-NUIM dataset, to show an example of this running on notably noisy input data. You can download it at: http://s3.sdavidmiller.com.s3.amazonaws.com/data/cpu_tsdf_sample_data.zip
+I've adapted a small slice of the Augmented ICL-NUIM dataset, to show an example of this running on notably noisy input data. You can download it at: http://sdavidmiller.s3.amazonaws.com/data/cpu_tsdf_sample_data.zip
