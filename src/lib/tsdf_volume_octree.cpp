@@ -77,7 +77,7 @@ cpu_tsdf::TSDFVolumeOctree::TSDFVolumeOctree()
   , weight_by_variance_ (false)
   , integrate_color_ (false)
   , color_mode_ ("RGB")
-  , use_trilinear_interpolation_ (false)
+  , use_trilinear_interpolation_ (true)
   , num_random_splits_ (1)
 {
   // Global transform
