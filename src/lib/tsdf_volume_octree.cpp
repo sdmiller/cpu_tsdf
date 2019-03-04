@@ -222,7 +222,7 @@ cpu_tsdf::TSDFVolumeOctree::reset ()
 void
 cpu_tsdf::TSDFVolumeOctree::save (const std::string &filename) const
 {
-  std::ofstream f (filename.c_str ());
+  std::ofstream f (filename.c_str (), std::ios::binary);
   f << "# TSDFVolumeOctree Meta Information" << endl;
   f.precision (16);
 
@@ -248,7 +248,7 @@ cpu_tsdf::TSDFVolumeOctree::save (const std::string &filename) const
 void
 cpu_tsdf::TSDFVolumeOctree::load (const std::string &filename)
 {
-  std::ifstream f (filename.c_str ());
+  std::ifstream f (filename.c_str (), std::ios::binary);
   char header[1024];
   f.getline (header, 1024);
   f >> xres_; f >> yres_; f >> zres_; 
