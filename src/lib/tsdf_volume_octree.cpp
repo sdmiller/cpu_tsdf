@@ -212,7 +212,7 @@ cpu_tsdf::TSDFVolumeOctree::reset ()
   // Initialize to 0 weight, -1 distance
   std::vector<cpu_tsdf::OctreeNode::Ptr> leaves; octree_->getLeaves (leaves);
 #pragma omp parallel for
-  for (size_t i = 0; i < leaves.size (); i++)
+  for (int64_t i = 0; i < leaves.size (); i++)
   {
     leaves[i]->setData (-1, 0);
   }
@@ -288,7 +288,7 @@ cpu_tsdf::TSDFVolumeOctree::renderView (const Eigen::Affine3d &trans, int downsa
   cloud->is_dense = false;
   float min_step = max_dist_neg_ * 3/4.;
 #pragma omp parallel for
-  for (size_t i = 0; i < cloud->size (); ++i)
+  for (int64_t i = 0; i < cloud->size (); ++i)
   {
     size_t x = i % new_width;
     size_t y = i / new_width;
@@ -433,7 +433,7 @@ cpu_tsdf::TSDFVolumeOctree::renderColoredView (const Eigen::Affine3d &trans, int
   pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr colored (new pcl::PointCloud<pcl::PointXYZRGBNormal> (grayscale->width, grayscale->height));
   colored->is_dense = false;
 #pragma omp parallel for
-  for (size_t i = 0; i < colored->size (); i++)
+  for (int64_t i = 0; i < colored->size (); i++)
   {
     pcl::PointXYZRGBNormal &pt = colored->at (i);
     pt.getVector3fMap () = grayscale->at (i).getVector3fMap ();
