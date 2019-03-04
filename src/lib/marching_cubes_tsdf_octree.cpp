@@ -76,6 +76,10 @@ cpu_tsdf::MarchingCubesTSDFOctree::setInputTSDF (cpu_tsdf::TSDFVolumeOctree::Con
   float iso_z = 0;
   PCL_INFO ("iso_x = %f, iso_y = %f, iso_z = %f\n", iso_x, iso_y, iso_z);
   setIsoLevel (std::min (iso_x, std::min (iso_y, iso_z)));
+  // Initialize size_voxel_ which is needed by pcl::MarchingCubes::createSurface
+  // If left uninitialized createSurface creates erroneous coordinates for the mesh
+  getBoundingBox();
+  size_voxel_ = (upper_boundary_ - lower_boundary_)* Eigen::Array3f(res_x_, res_y_, res_z_).inverse();
 }
 
 void
