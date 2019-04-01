@@ -96,7 +96,7 @@ getIntrinsics (const pcl::PointCloud<pcl::PointXYZ> &cloud,
   cy = X (1);
   fx = X (2);
   fy = X (3);
-  reproj_error = (A*X - b).squaredNorm () / (fx*fx);
+  reproj_error = (A*X - b).squaredNorm () / (fx*fx*idx/2);
   PCL_INFO ("Bounds:\n");
   PCL_INFO ("X: [%f, %f]\n",minX,maxX);
   PCL_INFO ("Y: [%f, %f]\n",minY,maxY);
