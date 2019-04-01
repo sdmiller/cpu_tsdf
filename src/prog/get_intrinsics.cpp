@@ -64,8 +64,10 @@ getIntrinsics (const pcl::PointCloud<pcl::PointXYZ> &cloud,
   Eigen::MatrixXf A = Eigen::MatrixXf::Zero (2*cloud.size (), 4);
   Eigen::VectorXf b = Eigen::VectorXf::Zero (2*cloud.size ());
   size_t idx = 0;
-  float minX,minY,minZ = std::numeric_limits<float>::infinity();
-  float maxX,maxY,maxZ = -std::numeric_limits<float>::infinity();
+  float minX, minY, minZ; 
+  minX = minY = minZ = std::numeric_limits<float>::infinity();
+  float maxX, maxY, maxZ; 
+  maxX = maxY = maxZ = -std::numeric_limits<float>::infinity();
   for (int x = 0 ; x < cloud.width; x++)
   {
     for (int y = 0; y < cloud.height; y++)
