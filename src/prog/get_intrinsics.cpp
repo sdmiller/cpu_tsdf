@@ -64,8 +64,10 @@ getIntrinsics (const pcl::PointCloud<pcl::PointXYZ> &cloud,
   Eigen::MatrixXf A = Eigen::MatrixXf::Zero (2*cloud.size (), 4);
   Eigen::VectorXf b = Eigen::VectorXf::Zero (2*cloud.size ());
   size_t idx = 0;
-  float minX,minY,minZ = std::numeric_limits<float>::infinity();
-  float maxX,maxY,maxZ = -std::numeric_limits<float>::infinity();
+  float minX, minY, minZ; 
+  minX = minY = minZ = std::numeric_limits<float>::infinity();
+  float maxX, maxY, maxZ; 
+  maxX = maxY = maxZ = -std::numeric_limits<float>::infinity();
   for (int x = 0 ; x < cloud.width; x++)
   {
     for (int y = 0; y < cloud.height; y++)
@@ -96,7 +98,7 @@ getIntrinsics (const pcl::PointCloud<pcl::PointXYZ> &cloud,
   cy = X (1);
   fx = X (2);
   fy = X (3);
-  reproj_error = (A*X - b).squaredNorm () / (fx*fx);
+  reproj_error = (A*X - b).squaredNorm () / (fx*fx*idx/2);
   PCL_INFO ("Bounds:\n");
   PCL_INFO ("X: [%f, %f]\n",minX,maxX);
   PCL_INFO ("Y: [%f, %f]\n",minY,maxY);
