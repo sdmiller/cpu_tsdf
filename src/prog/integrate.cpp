@@ -43,11 +43,13 @@
 
 #include <pcl/console/print.h>
 #include <pcl/console/time.h>
+#ifdef VISUALIZE
 #include <pcl/visualization/cloud_viewer.h>
+#include <pcl/io/vtk_lib_io.h>
+#endif
 #include <pcl/io/pcd_grabber.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
-#include <pcl/io/vtk_lib_io.h>
 #include <pcl/pcl_macros.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/segmentation/extract_clusters.h>
@@ -259,7 +261,9 @@ main (int argc, char** argv)
     ("volume-size", bpo::value<float> (), "Volume size")
     ("cell-size", bpo::value<float> (), "Cell size")
     ("num-frames", bpo::value<size_t> (), "Partially integrate the sequence: only the first N clouds used")
+#ifdef VISUALIZE
     ("visualize", "Visualize")
+#endif
     ("verbose", "Verbose")
     ("color", "Store color in addition to depth in the TSDF")
     ("flatten", "Flatten mesh vertices")
@@ -292,15 +296,17 @@ main (int argc, char** argv)
   try { bpo::notify(opts); }
   catch(...) { badargs = true; }
   if(opts.count("help") || badargs) {
-    cout << "Usage: " << bfs::basename(argv[0]) << " --in [in_dir] --out [out_dir] [OPTS]" << endl;
-    cout << "Integrates multiple clouds and returns a mesh. Assumes clouds are PCD files and poses are ascii (.txt) or binary float (.transform) files with the same prefix, specifying the pose of the camera in the world frame. Can customize many parameters, but if you don't know what they do, the defaults are strongly recommended." << endl;
-    cout << endl;
-    cout << opts_desc << endl;
+    std::cout << "Usage: " << bfs::basename(argv[0]) << " --in [in_dir] --out [out_dir] [OPTS]" << std::endl;
+    std::cout << "Integrates multiple clouds and returns a mesh. Assumes clouds are PCD files and poses are ascii (.txt) or binary float (.transform) files with the same prefix, specifying the pose of the camera in the world frame. Can customize many parameters, but if you don't know what they do, the defaults are strongly recommended." << std::endl;
+    std::cout << std::endl;
+    std::cout << opts_desc << std::endl;
     return (1);
   }
 
   // Visualize?
+#ifdef VISUALIZE
   bool visualize = opts.count ("visualize");
+#endif
   bool verbose = opts.count ("verbose");
   bool flatten = opts.count ("flatten");
   bool cleanup = opts.count ("cleanup");
@@ -435,7 +441,7 @@ main (int argc, char** argv)
   std::vector<Eigen::Affine3d> poses (pose_files.size ());
   for (size_t i = 0; i < pose_files.size (); i++)
   {
-    ifstream f (pose_files[i].c_str ());
+    std::ifstream f (pose_files[i].c_str ());
     float v;
     Eigen::Matrix4d mat;
     mat (3,0) = 0; mat (3,1) = 0; mat (3,2) = 0; mat (3,3) = 1;
@@ -498,6 +504,7 @@ main (int argc, char** argv)
   }
   // Load data
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr map (new pcl::PointCloud<pcl::PointXYZRGBA>);
+#ifdef VISUALIZE
   // Set up visualization
   pcl::visualization::PCLVisualizer::Ptr vis;
   if (visualize)
@@ -505,6 +512,7 @@ main (int argc, char** argv)
      vis.reset (new pcl::visualization::PCLVisualizer);
      vis->addCoordinateSystem ();
   } 
+#endif
   
   // Initialize aggregate cloud if we are just doing that instead
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr aggregate;
@@ -618,6 +626,7 @@ main (int argc, char** argv)
         PCL_INFO ("Cloud bounds: [%f, %f], [%f, %f], [%f, %f]\n", min_x, max_x, min_y, max_y, min_z, max_x);
       }
     }
+#ifdef VISUALIZE
     if (visualize) // Just for visualization purposes
     {
       vis->removeAllPointClouds ();
@@ -629,6 +638,7 @@ main (int argc, char** argv)
       PCL_INFO ("Map\n");
       vis->spin ();
     }
+#endif
     //Integrate
     Eigen::Affine3d  pose_rel_to_first_frame = poses[0].inverse () * poses[i];
     if (cloud_only) // Only if we're just dumping out the cloud
@@ -678,12 +688,14 @@ main (int argc, char** argv)
       flattenVertices (*mesh);
     if (cleanup)
       cleanupMesh (*mesh);
+#ifdef VISUALIZE
     if (visualize)
     {
       vis->removeAllPointClouds ();
       vis->addPolygonMesh (*mesh);
       vis->spin ();
     }
+#endif
     PCL_INFO ("Entire pipeline took %f ms\n", tt.toc ());
     if (save_ascii)
       pcl::io::savePLYFile (out_dir + "/mesh.ply", *mesh);
