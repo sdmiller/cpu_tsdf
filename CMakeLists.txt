@@ -25,8 +25,10 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 find_package(PCL 1.7 QUIET REQUIRED)
 
-if (NOT PCL_VISUALIZATION_FOUND)
-  message("PCL_VISUALIZATION was not found. Skip building some executables.")
+if (PCL_VISUALIZATION_FOUND)
+  message("PCL_VISUALIZATION was found. Enabling VISUALIZE flag.")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DVISUALIZE")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVISUALIZE")
 endif()
 
 include_directories(${PCL_INCLUDE_DIRS})
@@ -57,19 +59,17 @@ add_executable (tsdf2mesh src/prog/tsdf2mesh.cpp)
 target_link_libraries(tsdf2mesh ${PCL_LIBRARIES} cpu_tsdf)
 install(TARGETS tsdf2mesh DESTINATION bin)
 
-if (PCL_VISUALIZATION_FOUND)
-  if (APPLE)
-    add_executable (integrate MACOSX_BUNDLE src/prog/integrate.cpp)
-  else(APPLE)
-    add_executable (integrate src/prog/integrate.cpp)
-  endif(APPLE)
-  target_link_libraries(integrate ${PCL_LIBRARIES} cpu_tsdf ${Boost_PROGRAM_OPTIONS_LIBRARY})
-  install(TARGETS integrate DESTINATION bin)
+if (APPLE)
+  add_executable (integrate MACOSX_BUNDLE src/prog/integrate.cpp)
+else(APPLE)
+  add_executable (integrate src/prog/integrate.cpp)
+endif(APPLE)
+target_link_libraries(integrate ${PCL_LIBRARIES} cpu_tsdf ${Boost_PROGRAM_OPTIONS_LIBRARY})
+install(TARGETS integrate DESTINATION bin)
 
-  add_executable (get_intrinsics src/prog/get_intrinsics.cpp)
-  target_link_libraries(get_intrinsics ${PCL_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
-  install(TARGETS get_intrinsics DESTINATION bin)
-endif (PCL_VISUALIZATION_FOUND)
+add_executable (get_intrinsics src/prog/get_intrinsics.cpp)
+target_link_libraries(get_intrinsics ${PCL_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+install(TARGETS get_intrinsics DESTINATION bin)
 
 # Install the Header files preserving the directory
 set(HEADER_FILES include/cpu_tsdf/impl/tsdf_volume_octree.hpp

@@ -39,11 +39,12 @@
 
 
 #include <pcl/console/print.h>
-#include <pcl/visualization/cloud_viewer.h>
 #include <pcl/io/pcd_grabber.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
+#ifdef VISUALIZE
 #include <pcl/io/vtk_lib_io.h>
+#endif
 #include <pcl/pcl_macros.h>
 
 #include <boost/filesystem/convenience.hpp>
