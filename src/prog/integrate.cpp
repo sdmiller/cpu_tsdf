@@ -259,7 +259,8 @@ main (int argc, char** argv)
     ("in", bpo::value<std::string> ()->required (), "Input dir")
     ("out", bpo::value<std::string> ()->required (), "Output dir")
     ("volume-size", bpo::value<float> (), "Volume size")
-    ("cell-size", bpo::value<float> (), "Cell size")
+    ("cell-size", bpo::value<float> (), "Size of the smallest voxel: a smaller number means a more detailed surface. Defaults to 0.006")
+    ("max-cell-size", bpo::value<float> (), "Size of the largest voxel: a smaller number means more memory pressure and slower processing. Defaults to 0.5")
     ("num-frames", bpo::value<size_t> (), "Partially integrate the sequence: only the first N clouds used")
 #ifdef VISUALIZE
     ("visualize", "Visualize")
@@ -477,6 +478,9 @@ main (int argc, char** argv)
   float cell_size = 0.006;
   if (opts.count ("cell-size"))
     cell_size = opts["cell-size"].as<float> ();
+  float max_cell_size = 0.5;
+  if (opts.count ("max-cell-size"))
+    max_cell_size = opts["max-cell-size"].as<float> ();
   int tsdf_res;
   int desired_res = tsdf_size / cell_size;
   // Snap to nearest power of 2;
@@ -494,6 +498,7 @@ main (int argc, char** argv)
     tsdf->setGridSize (tsdf_size, tsdf_size, tsdf_size);
     PCL_INFO("Setting resolution: %d with grid size %f\n", tsdf_res, tsdf_size);
     tsdf->setResolution (tsdf_res, tsdf_res, tsdf_res);
+    tsdf->setMaxVoxelSize (max_cell_size, max_cell_size, max_cell_size);
     tsdf->setImageSize (width_, height_);
     tsdf->setCameraIntrinsics (focal_length_x_, focal_length_y_, principal_point_x_, principal_point_y_);
     tsdf->setNumRandomSplts (num_random_splits);
