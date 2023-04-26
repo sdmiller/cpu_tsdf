@@ -218,7 +218,7 @@ reprojectPoint (const pcl::PointXYZRGBA &pt, int &u, int &v)
 {
   u = (pt.x * focal_length_x_ / pt.z) + principal_point_x_;
   v = (pt.y * focal_length_y_ / pt.z) + principal_point_y_;
-  return (!pcl_isnan (pt.z) && pt.z > 0 && u >= 0 && u < width_ && v >= 0 && v < height_);
+  return (!std::isnan (pt.z) && pt.z > 0 && u >= 0 && u < width_ && v >= 0 && v < height_);
 }
 
 std::string getSharedPrefix (const std::vector<std::string> &files)
@@ -602,17 +602,17 @@ main (int argc, char** argv)
       for (size_t j = 0; j < cloud->size (); j++)
       {
         const pcl::PointXYZRGBA &pt = cloud->at (j);
-        if (verbose && !pcl_isnan (pt.z))
+        if (verbose && !std::isnan (pt.z))
           nonnan_original++;
         int u, v;
         if (reprojectPoint (pt, u, v))
         {
           pcl::PointXYZRGBA &pt_old = (*cloud_organized) (u, v);
-          if (pcl_isnan (pt_old.z) || (pt_old.z > pt.z))
+          if (std::isnan (pt_old.z) || (pt_old.z > pt.z))
           {
             if (verbose)
             {
-              if (pcl_isnan (pt_old.z))
+              if (std::isnan (pt_old.z))
                 nonnan_new++;
               if (pt.x < min_x) min_x = pt.x;
               if (pt.y < min_y) min_y = pt.y;
@@ -651,7 +651,7 @@ main (int argc, char** argv)
       pcl::PointCloud<pcl::PointXYZRGBA> cloud_unorganized;
       for (size_t i = 0; i < cloud_organized->size (); i++)
       {
-        if (!pcl_isnan (cloud_organized->at (i).z))
+        if (!std::isnan (cloud_organized->at (i).z))
           cloud_unorganized.push_back (cloud_organized->at (i));
       }
       pcl::transformPointCloud (cloud_unorganized, cloud_unorganized, pose_rel_to_first_frame);

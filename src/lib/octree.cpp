@@ -628,7 +628,7 @@ cpu_tsdf::Octree::getLeaves (std::vector<OctreeNode::Ptr> &leaves, float max_siz
 const cpu_tsdf::OctreeNode*
 cpu_tsdf::Octree::getContainingVoxel (float x, float y, float z, float min_size) const
 {
-  if (pcl_isnan (z) || std::fabs (x) > size_x_/2 || std::fabs (y) > size_y_/2 || std::fabs (z) > size_z_/2)
+  if (std::isnan (z) || std::fabs (x) > size_x_/2 || std::fabs (y) > size_y_/2 || std::fabs (z) > size_z_/2)
     return (NULL);
   return (root_->getContainingVoxel (x, y, z, min_size));
 }
@@ -637,7 +637,7 @@ cpu_tsdf::Octree::getContainingVoxel (float x, float y, float z, float min_size)
 cpu_tsdf::OctreeNode*
 cpu_tsdf::Octree::getContainingVoxel (float x, float y, float z, float min_size)
 {
-  if (pcl_isnan (z) || std::fabs (x) > size_x_/2 || std::fabs (y) > size_y_/2 || std::fabs (z) > size_z_/2)
+  if (std::isnan (z) || std::fabs (x) > size_x_/2 || std::fabs (y) > size_y_/2 || std::fabs (z) > size_z_/2)
     return (NULL);
   return (root_->getContainingVoxel (x, y, z, min_size));
 }

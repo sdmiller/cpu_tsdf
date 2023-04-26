@@ -61,7 +61,7 @@ cpu_tsdf::TSDFVolumeOctree::integrateCloud (
     for (size_t v = 0; v < cloud.height; v += px_step)
     {
       const PointT &pt_surface_orig = cloud (u, v);
-      if (pcl_isnan (pt_surface_orig.z))
+      if (std::isnan (pt_surface_orig.z))
         continue;
       // Look at surroundings
       int nstep = 0;
@@ -149,7 +149,7 @@ cpu_tsdf::TSDFVolumeOctree::updateVoxel (
   if (!reprojectPoint (v_g, u, v))
     return (0); // No observation
   const PointT &pt = cloud (u,v);
-  if (pcl_isnan (pt.z))
+  if (std::isnan (pt.z))
     return (0); // No observation
    // if (pt.z >= max_sensor_dist_) // We want to let empty points be empty, even at noisy readings
    //   return (0);

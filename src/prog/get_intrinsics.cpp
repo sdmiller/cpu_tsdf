@@ -74,7 +74,7 @@ getIntrinsics (const pcl::PointCloud<pcl::PointXYZ> &cloud,
     for (int y = 0; y < cloud.height; y++)
     {
       const pcl::PointXYZ &pt = cloud (x,y);
-      if (pcl_isnan (pt.x) || pcl_isnan (pt.y) || pcl_isnan (pt.z) || (pt.x == 0) || (pt.y == 0))
+      if (std::isnan (pt.x) || std::isnan (pt.y) || std::isnan (pt.z) || (pt.x == 0) || (pt.y == 0))
         continue;
       if (pt.x > maxX) maxX = pt.x;
       if (pt.y > maxY) maxY = pt.y;
