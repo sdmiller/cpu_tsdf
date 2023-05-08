@@ -149,28 +149,28 @@ cpu_tsdf::MarchingCubesTSDFOctree::getValidNeighborList1D (std::vector<float> &l
   leaf = std::vector<float> (8, 0.0f);
 
   leaf[0] = getGridValue (index3d);
-  if (pcl_isnan (leaf[0]))
+  if (std::isnan (leaf[0]))
     return (false);
   leaf[1] = getGridValue (index3d + Eigen::Vector3i (1, 0, 0));
-  if (pcl_isnan (leaf[1]))
+  if (std::isnan (leaf[1]))
     return (false);
   leaf[2] = getGridValue (index3d + Eigen::Vector3i (1, 0, 1));
-  if (pcl_isnan (leaf[2]))
+  if (std::isnan (leaf[2]))
     return (false);
   leaf[3] = getGridValue (index3d + Eigen::Vector3i (0, 0, 1));
-  if (pcl_isnan (leaf[3]))
+  if (std::isnan (leaf[3]))
     return (false);
   leaf[4] = getGridValue (index3d + Eigen::Vector3i (0, 1, 0));
-  if (pcl_isnan (leaf[4]))
+  if (std::isnan (leaf[4]))
     return (false);
   leaf[5] = getGridValue (index3d + Eigen::Vector3i (1, 1, 0));
-  if (pcl_isnan (leaf[5]))
+  if (std::isnan (leaf[5]))
     return (false);
   leaf[6] = getGridValue (index3d + Eigen::Vector3i (1, 1, 1));
-  if (pcl_isnan (leaf[6]))
+  if (std::isnan (leaf[6]))
     return (false);
   leaf[7] = getGridValue (index3d + Eigen::Vector3i (0, 1, 1));
-  if (pcl_isnan (leaf[7]))
+  if (std::isnan (leaf[7]))
     return (false);
   return (true);
 

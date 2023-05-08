@@ -382,7 +382,7 @@ cpu_tsdf::TSDFVolumeOctree::renderView (const Eigen::Affine3d &trans, int downsa
       last_d = getTSDFValue (trans.translation ().cast<float> () + (tprev) * du, 
                              &has_data);
       d = getTSDFValue (trans.translation ().cast<float> () + tcurr * du, &has_data);
-      if (!has_data || pcl_isnan (d) || pcl_isnan (last_d))
+      if (!has_data || std::isnan (d) || std::isnan (last_d))
       {
         pt.x = pt.y = pt.z = std::numeric_limits<float>::quiet_NaN ();
       }
@@ -438,7 +438,7 @@ cpu_tsdf::TSDFVolumeOctree::renderColoredView (const Eigen::Affine3d &trans, int
     pcl::PointXYZRGBNormal &pt = colored->at (i);
     pt.getVector3fMap () = grayscale->at (i).getVector3fMap ();
     pt.getNormalVector3fMap () = grayscale->at (i).getNormalVector3fMap ();
-    if (pcl_isnan (pt.z))
+    if (std::isnan (pt.z))
       continue;
     Eigen::Vector3f v_t = trans.cast<float> () * pt.getVector3fMap ();
     const cpu_tsdf::OctreeNode* voxel = octree_->getContainingVoxel (v_t (0), v_t (1), v_t (2));
