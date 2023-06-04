@@ -61,9 +61,9 @@ cpu_tsdf::MarchingCubesTSDFOctree::setInputTSDF (cpu_tsdf::TSDFVolumeOctree::Con
       {
         pcl::PointXYZ center = tsdf_volume_->getVoxelCenter (x_i, y_i, z_i);
         // Go from center to corner
-        center.x += (x_i == 0 ? -1 : 1) * 0.5 * size_x / res_x;
-        center.y += (y_i == 0 ? -1 : 1) * 0.5 * size_y / res_y;
-        center.z += (z_i == 0 ? -1 : 1) * 0.5 * size_z / res_z;
+        center.x += (x_i == 0 ? -1 : 1) * 0.5 * size_x / res_x + (x_i == 0 ? 1 : -1)*(0.5*size_x/(double)res_x);
+        center.y += (y_i == 0 ? -1 : 1) * 0.5 * size_y / res_y + (y_i == 0 ? 1 : -1)*(0.5*size_y/(double)res_y);
+        center.z += (z_i == 0 ? -1 : 1) * 0.5 * size_z / res_z + (z_i == 0 ? 1 : -1)*(0.5*size_z/(double)res_z);
         corner_cloud->points.push_back (center);
       }
     }

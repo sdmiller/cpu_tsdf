@@ -553,21 +553,21 @@ cpu_tsdf::TSDFVolumeOctree::getIntensityCloud (const Eigen::Affine3d &trans) con
 pcl::PointXYZ
 cpu_tsdf::TSDFVolumeOctree::getVoxelCenter (size_t x, size_t y, size_t z) const
 {
-  float xoff = xsize_/2;
-  float yoff = ysize_/2;
-  float zoff = zsize_/2;
-  return pcl::PointXYZ (x*xsize_/xres_ - xoff, y*ysize_/yres_ - yoff, z*zsize_/zres_ - zoff);
+  float xoff = xsize_/2.0;
+  float yoff = ysize_/2.0;
+  float zoff = zsize_/2.0;
+  return pcl::PointXYZ ((x+0.5)*xsize_/(double)xres_ - xoff, (y+0.5)*ysize_/(double)yres_ - yoff, (z+0.5)*zsize_/(double)zres_ - zoff);
 }
 
 bool
 cpu_tsdf::TSDFVolumeOctree::getVoxelIndex (float x, float y, float z, int &x_i, int &y_i, int &z_i) const
 {
-  double xoff = (double)xsize_/2;
-  double yoff = (double)ysize_/2;
-  double zoff = (double)zsize_/2;
-  x_i = ((double)x + xoff) / (double)xsize_ * xres_;// + 0.5;
-  y_i = ((double)y + yoff) / (double)ysize_ * yres_;// + 0.5;
-  z_i = ((double)z + zoff) / (double)zsize_ * zres_;// + 0.5;
+  double xoff = (double)xsize_/2.0;
+  double yoff = (double)ysize_/2.0;
+  double zoff = (double)zsize_/2.0;
+  x_i = std::floor(((double)x + xoff) / (double)xsize_ * (double)xres_);
+  y_i = std::floor(((double)y + yoff) / (double)ysize_ * (double)yres_);
+  z_i = std::floor(((double)z + zoff) / (double)zsize_ * (double)zres_);
   bool has_voxel = (x_i >= 0 && y_i >= 0 && z_i >= 0 
                   && x_i < xres_ && y_i < yres_ && z_i < zres_);
   return (has_voxel);
