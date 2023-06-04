@@ -9,7 +9,7 @@ Stability and Maintenance
 =========================
 This codebase was developed in ~2013. At the time, I believe it was built against PCL 1.7 on a Linux machine. Since that time, anecdotal evidence suggests that it has been run across Linux, Windows, and MacOS machines on a variety of PCL versions.
 
-Personally, I have most recently tested this on MacOS and Linux machines, built against PCL 1.12. Very little has changed though, so I *suspect* this is quite robust to the exact PCL dependency. However, reports suggest that Windows / Visual Studio may have some issues.
+Personally, I have most recently tested this on MacOS and Linux machines, built against PCL 1.10, 1.11, 1.12, and 1.13. Very little has changed though, so I *suspect* this is quite robust to the exact PCL dependency. However, reports suggest that Windows / Visual Studio may have some issues.
 
 Build Instructions
 ===================
