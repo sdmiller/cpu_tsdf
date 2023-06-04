@@ -5,6 +5,12 @@ a Marching Cube implementation, for extracting the isosurface.
 
 Note: This tool is meant primarily for exploring the basics of volumetric reconstruction / mocking up ideas in a research setting. Everyone says their code is "unoptimized" as a sort of Get Out Of Jail Free Card in academia, but here it's true by design: I represent the volume as a collection of pointers to (abstract) Voxel objects, and make all calls recursively...including I/O calls. That has the benefit of being very simple to modify / extend, while seriously hurting performance. As such, I'd suggest using cpu_tsdf only as a research tool for figuring out what parameters/architecture you'd like. Once you've settled on it, you'll probably want to homebrew your own solution before deploying it in the wild.
 
+Stability and Maintenance
+=========================
+This codebase was developed in ~2013. At the time, I believe it was built against PCL 1.7 on a Linux machine. Since that time, anecdotal evidence suggests that it has been run across Linux, Windows, and MacOS machines on a variety of PCL versions.
+
+Personally, I have most recently tested this on MacOS and Linux machines, built against PCL 1.12. Very little has changed though, so I *suspect* this is quite robust to the exact PCL dependency. However, reports suggest that Windows / Visual Studio may have some issues.
+
 Build Instructions
 ===================
 ```bash
