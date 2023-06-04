@@ -258,6 +258,7 @@ main (int argc, char** argv)
     ("help,h", "produce help message")
     ("in", bpo::value<std::string> ()->required (), "Input dir")
     ("out", bpo::value<std::string> ()->required (), "Output dir")
+    ("save-tsdf", "Save the full TSDF in the output directory")
     ("volume-size", bpo::value<float> (), "Volume size")
     ("cell-size", bpo::value<float> (), "Size of the smallest voxel: a smaller number means a more detailed surface. Defaults to 0.006")
     ("max-cell-size", bpo::value<float> (), "Size of the largest voxel: a smaller number means more memory pressure and slower processing. Defaults to 0.5")
@@ -316,6 +317,7 @@ main (int argc, char** argv)
   bool world_frame = opts.count ("world");
   bool zero_nans = opts.count ("zero-nans");
   bool save_ascii = opts.count ("save-ascii");
+  bool save_tsdf = opts.count ("save-tsdf");
   float cloud_units = 1.;
   if (opts.count ("cloud-units"))
     cloud_units = opts["cloud-units"].as<float> ();
@@ -707,6 +709,11 @@ main (int argc, char** argv)
     else
       pcl::io::savePLYFileBinary (out_dir + "/mesh.ply", *mesh);
     PCL_INFO ("Saved to %s/mesh.ply\n", out_dir.c_str ());
+    if (save_tsdf)
+    {
+      tsdf->save(out_dir + "/volume.tsdf");
+      PCL_INFO ("Saved full tsdf to %s/volume.tsdf\n", out_dir.c_str ());
+    }
   }
 }
 
