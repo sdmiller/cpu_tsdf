@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\47160\Desktop\PCL\PCLProjects\CloudViewer\build\CMakeFiles\65d77a9efbc0f6a4f0260590c96767b5\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{8DCD884D-4E9F-3AB4-B032-A5B53B532CB3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
